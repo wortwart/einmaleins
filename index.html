@@ -5,9 +5,40 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Einmaleins-Übungen</title>
 	<link rel="stylesheet" href="style.css">
+	<script src="store.js" defer></script>
 	<script src="script.js" defer></script>
 </head>
 <body>
+	<h1>Einmaleins-Übungen!</h1>
+	<form id="userForm">
+		<label>
+			Wie heißt du?
+			<input type="text" name="user" list="users" autofocus>
+			<datalist id="users">
+			</datalist>
+		</label>
+	</form>
+
+	<button id="start" class="hidden">
+		Bereit?
+	</button>
+
+	<main class="hidden">
+		<p>
+			<span><span id="clock"></span> Sekunden</span>
+			<span><span id="score"></span> Punkte</span>
+		</p>
+		<div id="comment"></div>
+		<form id="quiz" autocomplete="off">
+			<p id="quiz-task"></p>
+			<input type="text" id="answer">
+		</form>
+	</main>
+
+	<div id="result" class="hidden">
+		<p id="result-text"></p>
+		<button id="restart">Nochmal?</button>
+	</div>
 
 </body>
 </html>

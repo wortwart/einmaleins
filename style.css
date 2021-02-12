@@ -1,3 +1,145 @@
 body {
+	width: 50vw;
+	min-width: 500px;
+	margin: auto;
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	background-color: lightpink;
+}
+
+input, button {
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+h1 {
+	text-align: center;
+}
+
+#userForm {
+	transition: opacity 1s, height .5s;
+}
+
+#userForm label {
+	display: flex;
+	justify-content: space-evenly;
+	max-width: 400px;
+	margin: auto;
+	font-size: large;
+}
+
+#userForm input {
+	border: none;
+	border-bottom: 1px solid black;
+	font-size: large;
+	background-color: transparent;
+}
+
+.hidden {
+	opacity: 0;
+}
+
+.shrink {
+	overflow: hidden !important;
+	height: 0 !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	border: none !important;
+}
+
+#start {
+	display: block;
+	padding: 1em;
+	border: none;
+	margin: 1em auto;
+	font-size: xx-large;
+	background-color: red;
+	transition: opacity 1s, transform 1s;
+}
+
+#start.hidden {
+	z-index: -1;
+	pointer-events: none;
+	transform: scale(3, 3);
+}
+
+main {
+	margin: 2em;
+	padding: 2em;
+	border-radius: 1em;
+	background-color: lightseagreen;
+}
+
+main.covered {
+	opacity: .5;
+	pointer-events: none;
+}
+
+main > p {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1em;
+	font-size: large;
+}
+
+#clock, #score {
+	display: inline-block;
+	padding: .5em;
+	border: 3px solid black;
+	border-radius: .5em;
+	margin: auto;
+	font-size: x-large;
+	color: deeppink;
+	background-color: rgba(0, 0, 0, .3);
+}
+
+#score {
+	color: darksalmon;
+}
+
+#comment {
+	margin: 1.5em 0 .3em;
+	font-style: italic;
+	font-size: large;
+	text-align: right;
+}
+
+#quiz {
+	display: flex;
+	justify-content: center;
+	font-size: x-large;
+}
+
+#quiz-task {
+	border-bottom: 2px solid transparent;
+}
+
+#answer {
+	width: 3em;
+	border: 0;
+	border-bottom: 2px solid #444;
+	font-size: x-large;
+	text-align: center;
+	outline: none;
+	background-color: transparent;
+	color: #444;
+}
+
+#result-text {
+	padding: 1em 2em;
+	border: 5px ridge purple;
+	font-size: large;
+	text-align: center;
+	transition: transform 1.5s ease-in-out, opacity .75s;
+}
+
+.hidden #result-text {
+	transform: scale(2, 2) rotate(300deg);
+}
+
+#restart {
+	display: block;
+	padding: .5em;
+	border: none;
+	margin: auto;
+	font-size: large;
+	background-color: yellowgreen;
 }
