@@ -21,25 +21,34 @@ const restart = document.getElementById('restart');
 
 const comments = {
 	good: [
-		'Nicht schlecht',
+		'Nicht schlecht.',
 		'Hätte ich dir nicht zugetraut!',
-		'Lass ich durchgehen',
+		'Lass ich durchgehen.',
 		'Ja, okay.',
 		'Zufallstreffer.',
-		'Na gut',
+		'Na gut.',
 		'Wie hast du das gemacht?',
 		'Leg den Taschenrechner weg!',
 		'Erstaunlich.',
-		'War zu einfach, oder?'
+		'War zu einfach, oder?',
+		'Gut, aber schaffst du das nochmal?',
+		'Falsch! Sorry, kleiner Scherz.',
+		'Lass mich nachsehen ... scheint zu stimmen.',
+		'Moment, das war zu schnell für mich.',
+		'Mhm.',
+		'Fein, fein.',
+		'Du Rechenheld, du!',
+		'Hat hier jemand seine Hausaufgaben gemacht?',
+		'Sapperlot!'
 	],
 	bad: [
 		'Oje.',
-		'Das Gehirn wächst hoffentlich noch.',
 		'Es ist zum Verzweifeln.',
 		'Von mir habt ihr das nicht.',
 		'Sollen wir was anderes probieren?',
 		'(leises Weinen)',
 		'Rechnen ist nicht so deine Stärke, oder?',
+		'Vielleicht hast du ja andere Talente als Rechnen.',
 		'Puh.',
 		'Ich bin deprimiert.',
 		'Geh mal raus, dein Gehirn auslüften.',
@@ -103,7 +112,7 @@ startBtn.addEventListener('transitionend', () => {
 
 const startGame = () => {
 	state = 'running';
-	comments.textContent = '\u00a0';
+	comment.textContent = '\u00a0';
 	scoreEl.textContent = score;
 	createTask();
 	precisionTime = time * 1000;
