@@ -32,7 +32,7 @@ const addUser = name => {
 
 const highscore = name => {
 	const scores = storeGet(SCORES)[name];
-	if (!scores) return 0;
+	if (!scores.length) return 0;
 	return Math.max.apply(null, scores);
 };
 

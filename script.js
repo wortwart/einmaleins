@@ -76,6 +76,8 @@ userForm.addEventListener('submit', ev => {
 	if (state !== 'init') return;
 	user = addUser(userInput.value);
 	userForm.classList.add('hidden');
+	startBtn.textContent = startBtn.textContent.replace('$', user);
+	restart.textContent = restart.textContent.replace('$', user);
 });
 
 userForm.addEventListener('transitionend', () => {
@@ -119,8 +121,11 @@ const stopGame = () => {
 	const wrong = results.filter(item => !item).length;
 	const topscore = highscore(user);
 	resultText.innerHTML = `
-		Du hast <b>${results.length} Aufgaben</b> gelöst und dabei <b>${score} Punkte</b> erzielt. `;
-		resultText.innerHTML += wrong? `Bei ${wrong} Aufgabe${wrong === 1? '' : 'n'} lagst du daneben.` : `Alle deine Lösungen waren richtig! Fühl dich auf die Schulter geklopft!`;
+		${user}, du hast <b>${results.length} Aufgaben</b> gelöst und dabei <b>${score} Punkte</b> erzielt. `;
+		if (results.length)
+			resultText.innerHTML += wrong? `Bei ${wrong} Aufgabe${wrong === 1? '' : 'n'} lagst du daneben.` : `Alle deine Lösungen waren richtig! Fühl dich auf die Schulter geklopft!`;
+		else
+			resultText.innerHTML += `Schläfst du noch?`;
 	if (topscore) {
 		resultText.innerHTML += `<br>Du hast bisher ${playCount(user)} Mal gespielt. Dein bisher bestes Ergebnis waren ${topscore} Punkte.`;
 		if (topscore < score)
