@@ -30,7 +30,11 @@ const addUser = name => {
 	return name;
 }
 
-const highscore = name => Math.max.apply(null, storeGet(SCORES)[name]) || 0;
+const highscore = name => {
+	const scores = storeGet(SCORES)[name];
+	if (!scores) return 0;
+	return Math.max.apply(null, scores);
+};
 
 const playCount = name => storeGet(SCORES)[name].length || 0;
 

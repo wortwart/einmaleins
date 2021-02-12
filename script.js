@@ -1,4 +1,4 @@
-const time = 8;
+const time = 60;
 const minFactor = 2;
 const maxFactor = 9;
 const success = 10;
@@ -43,7 +43,7 @@ const comments = {
 		'Puh.',
 		'Ich bin deprimiert.',
 		'Geh mal raus, dein Gehirn auslüften.',
-		'DAS KANN JA WOHL NICHT WAHRSEIN!',
+		'DAS KANN JA WOHL NICHT WAHR SEIN!',
 		'Wofür schicken wir dich eigentlich in die Schule?'
 	]
 }
@@ -142,7 +142,7 @@ const tick = () => {
 	}
 }
 
-const randomNumber = (from, to) => Math.floor(Math.random() * to) + from;
+const randomNumber = (from, to) => Math.floor(Math.random() * (to + 1)) + from;
 
 const createTask = () => {
 	answer.value = '';
@@ -157,11 +157,11 @@ quiz.addEventListener('submit', ev => {
 	ev.preventDefault();
 	if (answer.value.trim() === solution.toString()) {
 		score += success;
-		comment.textContent = comments.good[randomNumber(0, comments.good.length)];
+		comment.textContent = comments.good[randomNumber(0, comments.good.length - 1)];
 		results.push(true);
 	} else {
 		score += fail;
-		comment.textContent = comments.bad[randomNumber(0, comments.bad.length)] + ` – Richtig war: ${solution}.`;
+		comment.textContent = comments.bad[randomNumber(0, comments.bad.length - 1)] + ` – Richtig war: ${solution}.`;
 		results.push(false);
 	}
 	scoreEl.textContent = score;
