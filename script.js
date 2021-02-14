@@ -1,4 +1,4 @@
-const time = 60;
+let time = 120;
 const minFactor = 2;
 const maxFactor = 9;
 const success = 10;
@@ -18,6 +18,8 @@ const comment = document.getElementById('comment');
 const result = document.getElementById('result');
 const resultText = document.getElementById('result-text');
 const restart = document.getElementById('restart');
+const nextBtn = document.getElementById('next');
+const aside = document.querySelector('aside');
 
 const comments = {
 	good: [
@@ -57,8 +59,20 @@ const comments = {
 	]
 }
 
-let user, start, end, precisionTime, score, results, solution, state;
+let user, start, end, precisionTime, score, results, solution, state, pauseTime,pauseStart, hasVoice, toSpeak, hasBreak;
 
+// Read parameters
+const params = {};
+location.search.slice(1).split('&').forEach(item => {
+	const keyVal = item.split('=');
+	params[keyVal[0]] = keyVal[1] === undefined? true : keyVal[1];
+});
+
+hasVoice = params.voice;
+time = params.time || time;
+hasBreak = params.break;
+
+// Init app
 const init = () => {
 	start = 0;
 	end = 0;
@@ -66,19 +80,29 @@ const init = () => {
 	score = 0;
 	results = [];
 	solution = 0;
+	pauseStart = 0;
+	pauseTime = 0;
 	main.classList.remove('covered');
 	main.classList.add('hidden');
 	result.classList.add('hidden');
+	resultText.innerHTML = '';
+	resultText.style.position = 'absolute';
 	state = 'init';
 }
 
 init();
+
 const users = getUsers();
 for (const user of users) {
 	const option = document.createElement('option');
 	option.setAttribute('value', user);
 	datalist.appendChild(option);
 }
+
+if (hasBreak)
+	nextBtn.setAttribute('disabled', 'true');
+else
+	nextBtn.style.display = 'none';
 
 userForm.addEventListener('submit', ev => {
 	ev.preventDefault();
@@ -98,6 +122,7 @@ userForm.addEventListener('transitionend', () => {
 
 startBtn.addEventListener('click', () => {
 	if (state !== 'init') return;
+	aside.classList.add('hidden');
 	startBtn.classList.add('hidden');
 });
 
@@ -140,19 +165,24 @@ const stopGame = () => {
 		if (topscore < score)
 		resultText.innerHTML += ` In diesem Spiel hast du es übertroffen – Glückwunsch!`;
 	}
+	resultText.style.position = 'static';
 	result.classList.remove('hidden');
 	saveScore(user, score);
+	restart.focus();
 }
 
 const tick = () => {
 	const now = Date.now();
-	const remaining = start + precisionTime - now;
+	const remaining = start + pauseTime + precisionTime - now;
 	if (remaining <= 0) {
 		clock.textContent = '0';
 		stopGame();
 	} else {
 		clock.textContent = Math.ceil(remaining/1000);
-		requestAnimationFrame(tick);
+		if (state === 'paused')
+			pauseStart = Date.now();
+		else
+			requestAnimationFrame(tick);
 	}
 }
 
@@ -169,16 +199,42 @@ const createTask = () => {
 quiz.addEventListener('submit', ev => {
 	if (state !== 'running') return;
 	ev.preventDefault();
+	if (hasBreak)
+		state = 'paused';
 	if (answer.value.trim() === solution.toString()) {
 		score += success;
 		comment.textContent = comments.good[randomNumber(0, comments.good.length - 1)];
 		results.push(true);
 	} else {
 		score += fail;
-		comment.textContent = comments.bad[randomNumber(0, comments.bad.length - 1)] + ` – Richtig war: ${solution}.`;
+		comment.textContent = comments.bad[randomNumber(0, comments.bad.length - 1)] + ` – Richtig war: ${solution}`;
 		results.push(false);
 	}
+	if (hasVoice && speechSynthesis) {
+		toSpeak = new SpeechSynthesisUtterance();
+		toSpeak.text = comment.textContent;
+		toSpeak.lang = 'de';
+		toSpeak.rate = 1;
+		toSpeak.pitch = 1.5;
+		speechSynthesis.cancel();
+		speechSynthesis.speak(toSpeak);
+	}
 	scoreEl.textContent = score;
+	if (!hasBreak)
+		createTask();
+	else {
+		nextBtn.removeAttribute('disabled');
+		nextBtn.focus();
+	}
+});
+
+nextBtn.addEventListener('click', ev => {
+	state = 'running';
+	nextBtn.setAttribute('disabled', 'true');
+	answer.focus();
+	pauseTime += Date.now() - pauseStart;
+	pauseStart = 0;
+	tick();
 	createTask();
 });
 
