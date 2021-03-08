@@ -62,21 +62,29 @@ h1 {
 	border: none !important;
 }
 
-#start {
+#settings {
 	position: relative;
+	transition: opacity 1s, transform 1s;
+}
+
+#settings.hidden {
+	z-index: -1;
+	pointer-events: none;
+	transform: scale(2, 2);
+}
+
+label {
+	display: block;
+	margin: .5em 0 .5em 20%;
+}
+
+#start {
 	display: block;
 	padding: 1em;
 	border: none;
 	margin: 1em auto;
 	font-size: xx-large;
 	background-color: red;
-	transition: opacity 1s, transform 1s;
-}
-
-#start.hidden {
-	z-index: -1;
-	pointer-events: none;
-	transform: scale(3, 3);
 }
 
 main {

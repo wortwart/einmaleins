@@ -1,12 +1,35 @@
-let time = 120;
-const minFactor = 2;
-const maxFactor = 9;
+const defaultTime = 120;
 const success = 10;
 const fail = -15;
+
+const types = [
+	{
+		name: '1 \u00d7 1',
+		value: '1x1',
+	},
+	{
+		name: '1 \u00d7 10 einfach',
+		value: '1x10 einfach',
+	},
+	{
+		name: '1 \u00d7 10',
+		value: '1x10',
+	},
+	{
+		name: '10 \u00d7 10 einfach',
+		value: '10x10 einfach',
+	},
+	{
+		name: '10 \u00d7 10',
+		value: '10x10',
+	},
+];
 
 const userForm = document.getElementById('userForm');
 const userInput = userForm.querySelector('input');
 const datalist = document.getElementById('users');
+const settingsForm = document.getElementById('settings');
+const settingFields = settingsForm.querySelectorAll('[name]');
 const startBtn = document.getElementById('start');
 const main = document.querySelector('main');
 const clock = document.getElementById('clock');
@@ -55,22 +78,59 @@ const comments = {
 		'Ich bin deprimiert.',
 		'Geh mal raus, dein Gehirn auslüften.',
 		'DAS KANN JA WOHL NICHT WAHR SEIN!',
-		'Wofür schicken wir dich eigentlich in die Schule?'
+		'Wofür schicken wir dich eigentlich in die Schule?',
+		'Gnade!'
 	]
 }
 
-let user, start, end, precisionTime, score, results, solution, state, pauseTime,pauseStart, hasVoice, toSpeak, hasBreak;
+let user, start, end, precisionTime, score, results, solution, state, pauseTime,pauseStart, toSpeak;
+const settings = {
+	time: defaultTime,
+	type: types[0].value,
+	voice: true,
+	pause: true,
+	bgcolor: '#' + getComputedStyle(document.body)
+		.backgroundColor.match(/\d+/g)
+		.map(x => (+x).toString(16).padStart(2, 0))
+		.join``,
+};
+
+// Show game types in select menu
+const typeSelect = document.querySelector('[name="type"]');
+while (typeSelect.firstChild)
+	typeSelect.removeChild(typeSelect.firstChild);
+for (const t of types) {
+	const o = document.createElement('option');
+	o.setAttribute('value', t.value);
+	o.textContent = t.name;
+	typeSelect.appendChild(o);
+}
 
 // Read parameters
 const params = {};
 location.search.slice(1).split('&').forEach(item => {
 	const keyVal = item.split('=');
-	params[keyVal[0]] = keyVal[1] === undefined? true : keyVal[1];
+	settings[keyVal[0]] = keyVal[1] === undefined? true : keyVal[1];
 });
+settings.time = isNaN(+settings.time)? defaultTime : +settings.time;
+settings.type = types.some(t => t.value === settings.type)?
+	settings.type :
+	types[0].value;
 
-hasVoice = params.voice;
-time = params.time || time;
-hasBreak = params.break;
+// Display settings in settings form
+const initSettings = () => {
+	for (const settingField of settingFields) {
+		const fname = settingField.getAttribute('name');
+		if (typeof settings[fname] === 'boolean') {
+			if (settings[fname])
+				settingField.setAttribute('checked', 'checked');
+			else
+				settingField.removeAttribute('checked');
+		} else {
+			settingField.value = settings[fname]? decodeURIComponent(settings[fname]) : null;
+		}
+	}
+}
 
 // Init app
 const init = () => {
@@ -99,11 +159,6 @@ for (const user of users) {
 	datalist.appendChild(option);
 }
 
-if (hasBreak)
-	nextBtn.setAttribute('disabled', 'true');
-else
-	nextBtn.style.display = 'none';
-
 userForm.addEventListener('submit', ev => {
 	ev.preventDefault();
 	if (state !== 'init') return;
@@ -116,19 +171,36 @@ userForm.addEventListener('submit', ev => {
 userForm.addEventListener('transitionend', () => {
 	userForm.classList.add('shrink');
 	userForm.removeAttribute('autofocus');
-	startBtn.classList.remove('hidden');
+	initSettings();
+	settingsForm.classList.remove('hidden');
 	startBtn.focus();
 });
 
-startBtn.addEventListener('click', () => {
+if (settings.pause)
+	nextBtn.setAttribute('disabled', 'true');
+else
+	nextBtn.style.display = 'none';
+
+startBtn.addEventListener('click', ev => {
+	ev.preventDefault();
 	if (state !== 'init') return;
+
+	// read settings form data to settings
+	for (const field of settingFields) {
+		if (field.name === 'bgcolor') {
+			document.body.style.backgroundColor = field.value;
+			continue;
+		}
+		settings[field.name] = field.type === 'checkbox'? field.checked : field.value;
+	}
+
 	aside.classList.add('hidden');
-	startBtn.classList.add('hidden');
+	settingsForm.classList.add('hidden');
 });
 
-startBtn.addEventListener('transitionend', () => {
-	if (startBtn.classList.contains('hidden')) {
-		startBtn.classList.add('shrink');
+settingsForm.addEventListener('transitionend', () => {
+	if (settingsForm.classList.contains('hidden')) {
+		settingsForm.classList.add('shrink');
 		main.classList.remove('hidden');
 		answer.focus();
 		startGame();
@@ -140,10 +212,10 @@ const startGame = () => {
 	comment.textContent = '\u00a0';
 	scoreEl.textContent = score;
 	createTask();
-	precisionTime = time * 1000;
+	precisionTime = settings.time * 1000;
 	start = Date.now();
 	end = start + precisionTime;
-	clock.textContent = time;
+	clock.textContent = settings.time;
 	tick();
 }
 
@@ -167,7 +239,11 @@ const stopGame = () => {
 	}
 	resultText.style.position = 'static';
 	result.classList.remove('hidden');
-	saveScore(user, score);
+	saveScore(user, {
+		time: +settings.time,
+		type: settings.type,
+		score
+	});
 	restart.focus();
 }
 
@@ -190,8 +266,35 @@ const randomNumber = (from, to) => Math.floor(Math.random() * (to + 1)) + from;
 
 const createTask = () => {
 	answer.value = '';
-	const f1 = randomNumber(minFactor, (maxFactor - minFactor));
-	const f2 = randomNumber(minFactor, (maxFactor - minFactor));
+	let shuffle = false;
+
+	if (settings.type === '1x1') {
+		f1 = (randomNumber(2, (9 - 2)));
+		f2 = (randomNumber(2, (9 - 2)));
+
+	} else if (settings.type === '1x10 einfach') {
+		f1 = (randomNumber(2, (9 - 2)));
+		f2 = (randomNumber(2, (9 - 2)));
+		f1 *= 10;
+		shuffle = true;
+
+	} else if (settings.type === '1x10') {
+		f1 = (randomNumber(2, (99 - 2)));
+		f2 = (randomNumber(2, (9 - 2)));
+		shuffle = true;
+
+	} else if (settings.type === '10x10 einfach') {
+		f1 = (randomNumber(2, (30 - 2)));
+		f2 = (randomNumber(2, (20 - 2)));
+		shuffle = true;
+
+	} else if (settings.type === '10x10') {
+		f1 = (randomNumber(2, (99 - 2)));
+		f2 = (randomNumber(2, (99 - 2)));
+	}
+
+	if (shuffle && randomNumber(0, 1))
+		[f1, f2] = [f2, f1];
 	quizTask.textContent = `${f1} \u00d7 ${f2} =`
 	solution = f1 * f2;
 }
@@ -199,8 +302,9 @@ const createTask = () => {
 quiz.addEventListener('submit', ev => {
 	if (state !== 'running') return;
 	ev.preventDefault();
-	if (hasBreak)
+	if (settings.pause)
 		state = 'paused';
+
 	if (answer.value.trim() === solution.toString()) {
 		score += success;
 		comment.textContent = comments.good[randomNumber(0, comments.good.length - 1)];
@@ -210,7 +314,8 @@ quiz.addEventListener('submit', ev => {
 		comment.textContent = comments.bad[randomNumber(0, comments.bad.length - 1)] + ` – Richtig war: ${solution}`;
 		results.push(false);
 	}
-	if (hasVoice && speechSynthesis) {
+
+	if (settings.voice && speechSynthesis) {
 		toSpeak = new SpeechSynthesisUtterance();
 		toSpeak.text = comment.textContent;
 		toSpeak.lang = 'de';
@@ -220,7 +325,7 @@ quiz.addEventListener('submit', ev => {
 		speechSynthesis.speak(toSpeak);
 	}
 	scoreEl.textContent = score;
-	if (!hasBreak)
+	if (!settings.pause)
 		createTask();
 	else {
 		nextBtn.removeAttribute('disabled');
@@ -240,6 +345,6 @@ nextBtn.addEventListener('click', ev => {
 
 restart.addEventListener('click', () => {
 	init();
-	startBtn.classList.remove('hidden', 'shrink');
+	settingsForm.classList.remove('hidden', 'shrink');
 	startBtn.focus();
 });

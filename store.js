@@ -2,8 +2,10 @@ const USERS = 'users';
 const SCORES = 'scores';
 
 const storeGet = prop => {
-	const st = localStorage.getItem(prop);
-	return st? JSON.parse(st) : st;
+	let item = localStorage.getItem(prop);
+	if (!item)
+		localStorage.setItem(prop, '');
+	return JSON.parse(item);
 }
 
 const storeSet = (prop, value) => localStorage.setItem(prop, JSON.stringify(value));
@@ -33,7 +35,7 @@ const addUser = name => {
 const highscore = name => {
 	const scores = storeGet(SCORES)[name];
 	if (!scores.length) return 0;
-	return Math.max.apply(null, scores);
+	return Math.max.apply(null, scores.map(s => s.score));
 };
 
 const playCount = name => storeGet(SCORES)[name].length || 0;

@@ -20,9 +20,36 @@
 		<input type="submit" value="OK">
 	</form>
 
-	<button id="start" class="hidden">
-		Bereit, $?
-	</button>
+	<form action="#" id="settings" class="hidden">
+		<fieldset>
+			<label>
+				Aufgaben:
+				<select name="type">
+				</select>
+			</label>
+			<label>
+				Zeit:
+				<input type="number" name="time" min="10" max="600">
+				Sekunden
+			</label>
+			<label>
+				<input type="checkbox" name="voice">
+				Ergebnis Vorlesen
+			</label>
+			<label>
+				<input type="checkbox" name="pause">
+				Pause nach jeder Aufgabe
+			</label>
+			<label>
+				Farbe:
+				<input type="color" name="bgcolor">
+			</label>
+		</fieldset>
+
+		<button id="start">
+			Bereit, $?
+		</button>
+	</form>
 
 	<main class="hidden">
 		<p>
@@ -44,10 +71,13 @@
 
 	<aside>
 		Bei der Zahleneingabe Enter-Taste benutzen.<br>
+		Geht wahrscheinlich nicht im Internet Explorer.<br>
+		<!--
 		URL-Parameter: <code>time</code>, <code>break</code>, <code>voice</code> &ndash; z.B. <code>woerter.de/projects/einmaleins/?time=60&break</code><br>
 		<code>time</code>: Zeit in Sekunden<br>
 		<code>break</code>: Uhr stoppt nach jeder Eingabe, "Weiter"-Button erscheint<br>
 		<code>voice</code>: Sprachausgabe<br>
+		-->
 		<a href="https://woerter.de/">Herbert Braun</a>, 2021<br>
 		Repo: <a href="https://github.com/wortwart/einmaleins">GitHub</a><br>
 	</aside>
