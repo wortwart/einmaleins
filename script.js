@@ -162,6 +162,7 @@ for (const user of users) {
 userForm.addEventListener('submit', ev => {
 	ev.preventDefault();
 	if (state !== 'init') return;
+	state = 'login';
 	user = addUser(userInput.value);
 	userForm.classList.add('hidden');
 	startBtn.textContent = startBtn.textContent.replace('$', user);
@@ -169,6 +170,8 @@ userForm.addEventListener('submit', ev => {
 });
 
 userForm.addEventListener('transitionend', () => {
+	if (state !== 'login') return;
+	state = 'loggedin';
 	userForm.classList.add('shrink');
 	userForm.removeAttribute('autofocus');
 	initSettings();
@@ -183,7 +186,7 @@ else
 
 startBtn.addEventListener('click', ev => {
 	ev.preventDefault();
-	if (state !== 'init') return;
+	if (state !== 'loggedin') return;
 
 	// read settings form data to settings
 	for (const field of settingFields) {
@@ -199,6 +202,7 @@ startBtn.addEventListener('click', ev => {
 });
 
 settingsForm.addEventListener('transitionend', () => {
+	if (state !== 'loggedin') return;
 	if (settingsForm.classList.contains('hidden')) {
 		settingsForm.classList.add('shrink');
 		main.classList.remove('hidden');
@@ -346,5 +350,6 @@ nextBtn.addEventListener('click', ev => {
 restart.addEventListener('click', () => {
 	init();
 	settingsForm.classList.remove('hidden', 'shrink');
+	state = 'loggedin';
 	startBtn.focus();
 });
